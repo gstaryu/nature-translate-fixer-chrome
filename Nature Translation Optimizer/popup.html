@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { width: 240px; font-family: -apple-system, system-ui, sans-serif; padding: 15px; background: #f9f9fb; }
+        .card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; display: block; }
+        .option { margin: 14px 0; display: flex; align-items: center; cursor: pointer; font-size: 14px; color: #444; }
+        input { margin-right: 12px; width: 16px; height: 16px; cursor: pointer; }
+        hr { border: 0; border-top: 1px solid #f0f0f0; margin: 12px 0; }
+        .status-bar { font-size: 11px; color: #999; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <span class="title">Nature 翻译优化助手</span>
+        
+        <label class="option">
+            <input type="checkbox" id="masterSwitch"> <strong>开启自动修复</strong>
+        </label>
+        
+        <hr>
+        
+        <div id="modeGroup">
+            <label class="option">
+                <input type="radio" name="mode" value="hide"> 沉浸模式 (隐藏引用编号)
+            </label>
+            <label class="option">
+                <input type="radio" name="mode" value="clean"> 规范模式 (显示引用编号)
+            </label>
+        </div>
+
+        <div class="status-bar" id="statusHint">检测到 Nature 页面时自动激活</div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>

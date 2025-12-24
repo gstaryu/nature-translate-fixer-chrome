@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Nature 翻译优化助手",
+  "description": "修复 Nature 系列期刊网页翻译后的参考文献上标错位、跳转失效及间距问题。",
+  "version": "1.0",
+  "permissions": ["storage"],
+    "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content.js"]
+  }]
+}
