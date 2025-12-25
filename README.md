@@ -18,7 +18,7 @@
 
 - 🎯 精准域名锁定：仅在 *.nature.com 域名下激活，不干扰其他无关网页的运行。
 
-  ![](.\imgs\sketch.png)
+  ![](./imgs/sketch.png)
 
 🛠️ 安装指南
 
@@ -37,4 +37,5 @@
 - icons/: 包含 16px、48px、128px 三种尺寸的logo。
 
 ⚖️ 开源协议
+
 本项目采用 MIT License 协议。
