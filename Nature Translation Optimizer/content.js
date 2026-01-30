@@ -1,5 +1,6 @@
 /**
- * 学术阅读优化器 v1.0
+ * 学术阅读优化器 v1.1
+ * 修复：扩展清理范围，移除翻译产生的 <sub> 和 <sup> 文本碎片
  */
 
 function isContextValid() {
@@ -27,12 +28,16 @@ function applyOptimization(enabled, mode) {
         return; 
     }
 
-    // 清洗源码碎片
-    const artifactRegex = /(<|<\/|&lt;|&lt;\/)sup(>|&gt;)/gi;
+    /**
+     * 【v4.1 核心修复】：增强版源码碎片清洗
+     * 修改点：将范围从 sup 扩大到 (sup|sub)，并处理不规范的碎片（如 /sub>）
+     */
+    const artifactRegex = /(<|<\/|&lt;|&lt;\/|&gt;|\/)?(sup|sub)(>|&gt;)?/gi;
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     let node;
     while (node = walker.nextNode()) {
         if (artifactRegex.test(node.nodeValue)) {
+            // 将类似 "<sub>", "/sub>", "<sup>" 这种文本内容直接抹除
             node.nodeValue = node.nodeValue.replace(artifactRegex, '');
         }
     }
@@ -40,11 +45,20 @@ function applyOptimization(enabled, mode) {
     targets.forEach(el => {
         const rawContent = el.innerText.trim();
         if (!rawContent) return;
+
         const isMiswrapped = hasChineseRegex.test(rawContent) || rawContent.length > 15;
         const isTrueCitation = citationRegex.test(rawContent);
 
         if (isMiswrapped) {
-            el.style.cssText = "display:inline !important; font-size:inherit !important; vertical-align:baseline !important; position:static !important;";
+            // 公式下标保护逻辑保持不变
+            const isSub = el.tagName === 'SUB';
+            el.style.cssText = `
+                display: inline !important; 
+                font-size: ${isSub ? '0.75em' : 'inherit'} !important; 
+                vertical-align: ${isSub ? 'sub' : 'baseline'} !important; 
+                position: static !important;
+                line-height: inherit !important;
+            `;
         } else if (isTrueCitation) {
             if (mode === 'hide') {
                 el.style.display = "none";
@@ -71,7 +85,6 @@ function applyOptimization(enabled, mode) {
     });
 }
 
-// 封装 Storage 获取，增加极端容错
 function safeLoad() {
     try {
         if (!isContextValid()) return;
@@ -79,12 +92,11 @@ function safeLoad() {
             if (chrome.runtime?.lastError) return;
             applyOptimization(res.enabled, res.mode || 'clean');
         });
-    } catch (e) { /* 环境已彻底销毁，保持静默 */ }
+    } catch (e) { }
 }
 
 let timer = null;
 const observer = new MutationObserver(() => {
-    // 【修复核心】：防止在失效瞬间操作 timer
     try {
         if (!isContextValid()) {
             observer.disconnect();
@@ -92,17 +104,15 @@ const observer = new MutationObserver(() => {
         }
         if (timer) clearTimeout(timer);
         timer = setTimeout(safeLoad, 200);
-    } catch (e) { /* 拦截任何失效报错 */ }
+    } catch (e) { }
 });
 
 if (isContextValid()) {
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     observer.observe(document.body, { childList: true, subtree: true });
-    
     chrome.runtime.onMessage.addListener((msg) => {
         if (msg.action === "UPDATE") applyOptimization(msg.enabled, msg.mode);
         return true;
     });
-
     safeLoad();
 }
